@@ -1,0 +1,106 @@
+Yahoo groups- download turbo assembler timer
+
+ASSEMBLY
+*not case sensitive
+
+to RUN:
+- in cmd: tasm test
+- cmd: dir test.*
+- all variables are GLOBAL IN NATURE
+
+:In Turbo Assembler:
+
+	TITTLE My first assemlby language
+	DOSSEG 							//a reserve word
+	.MODEL SMALL 						//can have 64k of data, variables, etc.
+	.STACK 100h 						//a stack of 256 bytes, reserve enough space
+	.DATA 							//anything after .DATA is data declaration
+ALPHA db "Hello World", 13, 10,	'$' //with next line		//A STRING is terminated by a DOLLAR
+BETA db "I like ARCHORG$"					//w/o $ sign -> garbage value
+CRLF db 13, 10, "$"
+TANONG db "What is your name?$ "
+; SAGOT db "$$$$$$$$$$$$$$"					//One way to allocate 10 bytes for the answer, +4 for other used bytes
+								// When allocating space for something, add + 4 bytes
+SAGOT db 14 dup("$")						//one way to allocate space
+OUTPUT db "Hello $"
+								//db = define byte
+								//j db 05 -> an address named j with initialization of number 05
+
+	.code
+
+//ALL SUBROUTINES ARE DECLARED BEFORE .code
+
+
+//FUNCTIONS
+CLRSRC PROC
+	mov ah, 00h
+	mov al, 03h
+	int 10h
+	ret
+CLRSCR ENDP	//ENDP - ENDPROMPT
+
+PRINTF PROC
+	mov ah, 09h
+	int 21h
+	ret
+PRINTF ENDP
+
+
+
+BEGIN:		mov ax, @data					//These 3 lines are OPEN BRACKETS
+		mov ds, ax
+		mov es, ax
+
+; clrscr
+		call CLRSCR
+
+
+		//WHERE BODY IS TYPED
+; printf	//a ; means a remark aka COMMENT
+		
+		LEA DX, ALPHA	//LEA means pointer; ALPHA -> variable
+		MOV AH, 09h
+		INT 21h		//INTERRUPT - pre-defined; a function to say printf; prints what LEA points to which is DX
+				//MOV and INT are responsible for PRINTF
+
+; printf	
+		LEA DX, ALPHA
+		call PRINTF
+
+; printf
+		LEA DX, BETA
+		MOV AH, 09h
+		INT 21h
+
+;printf
+		LEA DX, CRLF
+		MOV AH, 09h
+		INT 21h
+
+;printf
+		LEA DX, TANONG
+		MOV AH, 09h
+		INT 21h
+
+; scanf
+		MOV byte ptr SAGOT, 0Bh
+		LEA DX, SAGOT
+		MOV AH, 0Ah			//10 for scanf
+		INT 21h
+
+;printf
+		LEA DX, OUTPUT
+		MOV AH, 09h
+		INT 21h
+
+; printf
+		MOV SI, 0002
+		LEA DX, SAGOT[SI]
+		MOV AH, 09h
+		INT 21h
+		
+
+		mov ah, 4ch					//These 3 lines are CLOSE BRACKETS
+		int 21h
+		end BEGINs
+		

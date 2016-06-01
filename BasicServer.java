@@ -32,7 +32,7 @@ public class BasicServer implements Runnable {
   }
 
   private void process_request(HttpRequest request, HttpResponse response) throws IOException {
-    String body = response.sendBody("www/test/login.html"); //hardcoded for testing purposes only
+    String body = response.sendBody("www/ASSEMBLY TALK.txt"); //hardcoded for testing purposes only
 
     response.status = "200 OK";
 
