@@ -32,7 +32,10 @@ public class BasicServer implements Runnable {
   }
 
   private void process_request(HttpRequest request, HttpResponse response) throws IOException {
-    String body = "<h1>It Works!</h1>";
+
+    //sample lang ito
+    Render r = new CSSrender();
+    String body = r.getContent("C:\\Users\\Jerrick\\Documents\\GitHub\\prosdev-basic-server\\www\\example.css");
 
     response.status = "200 OK";
 
