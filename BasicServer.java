@@ -32,8 +32,19 @@ public class BasicServer implements Runnable {
   }
 
   private void process_request(HttpRequest request, HttpResponse response) throws IOException {
-    String body = "<h1>It Works!</h1>";
-
+	 // body = file to be read
+    String filepath = "/* file path here */"; 
+    int filetype = 0;
+    String body = "";
+    switch(filetype) {
+    	case 0: body = ((new HTMLReader(filepath)).readFile()); break;
+    	case 1: body = ((new CSSReader(filepath)).readFile()); break;
+    	case 2: body = ((new JSReader(filepath)).readFile()); break;
+    	case 3: body = ((new TXTReader(filepath)).readFile()); break;
+    }
+    
+    String body = (new TXTReader("/www/txt.txt").readFile());
+    
     response.status = "200 OK";
 
     response.headers.put("Content-Length", String.valueOf(body.length()));
