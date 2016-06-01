@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -30,9 +31,24 @@ public class BasicServer implements Runnable {
       }
     }
   }
+  
+
 
   private void process_request(HttpRequest request, HttpResponse response) throws IOException {
-    String body = "<h1>It Works!</h1>";
+    String body = "<h1>Directory</h1>";
+    body+="<ul>";
+    String file;
+    final File folder = new File(System.getProperty("user.dir")+"/www");
+      for (final File fileEntry : folder.listFiles()) {
+          //file directory
+          file=System.getProperty("user.dir")+"/www/"+fileEntry.getName();
+          //handle spaces in files
+          file=file.replaceAll(" ", "%20");
+          //list item
+          body+="<li>"+"<a href="+file+">"+fileEntry.getName()+"</a>"+"</li>";
+      }
+      body+="</ul>";
+    
 
     response.status = "200 OK";
 
