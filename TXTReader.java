@@ -1,11 +1,12 @@
 
 public class TXTReader {
+	private String content;
+	
 	public TXTReader(String path) {
 		
 	}
 	
-	public String readFile() {
-		String content;
+	public String getContent() {
 		
 		return content;
 	}

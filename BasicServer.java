@@ -21,7 +21,7 @@ public class BasicServer implements Runnable {
       try {
         socket = listener.accept();
         HttpRequest request = new HttpRequest(socket.getInputStream());
-        HttpResponse response = new HttpResponse(socket.getOutputStream());
+        HttpResponse response = new HttpResponse(socket.getOutputStream()); 
 
         process_request(request, response);
         socket.close();
@@ -37,13 +37,11 @@ public class BasicServer implements Runnable {
     int filetype = 0;
     String body = "";
     switch(filetype) {
-    	case 0: body = ((new HTMLReader(filepath)).readFile()); break;
-    	case 1: body = ((new CSSReader(filepath)).readFile()); break;
-    	case 2: body = ((new JSReader(filepath)).readFile()); break;
-    	case 3: body = ((new TXTReader(filepath)).readFile()); break;
+    	case 0: body = ((new HTMLReader(filepath)).getContent()); break;
+    	case 1: body = ((new CSSReader(filepath)).getContent()); break;
+    	case 2: body = ((new JSReader(filepath)).getContent()); break;
+    	case 3: body = ((new TXTReader(filepath)).getContent()); break;
     }
-    
-    String body = (new TXTReader("/www/txt.txt").readFile());
     
     response.status = "200 OK";
 

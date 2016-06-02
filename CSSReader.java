@@ -1,11 +1,12 @@
 
 public class CSSReader {
+	private String content;
+	
 	public CSSReader(String path) {
 		
 	}
 	
-	public String readFile() {
-		String content;
+	public String getContent() {
 		
 		return content;
 	}

@@ -1,11 +1,12 @@
 
 public class JSReader {
+	private String content;
+	
 	public JSReader(String path) {
 		
 	}
 	
-	public String readFile() {
-		String content;
+	public String getContent() {
 		
 		return content;
 	}
