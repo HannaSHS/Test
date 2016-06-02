@@ -6,6 +6,8 @@ public class BasicServer implements Runnable {
   protected int PORT_NUMBER = 8765;
 
   private ServerSocket listener;
+  
+  boolean fileExists = false;
 
   public BasicServer() throws IOException {
     System.out.println("Starting server...");
@@ -34,13 +36,23 @@ public class BasicServer implements Runnable {
   private void process_request(HttpRequest request, HttpResponse response) throws IOException {
     String body = "<h1>It Works!</h1>";
 
-    response.status = "200 OK";
+	if(fileExists) {
+		response.status = "200 OK";
 
-    response.headers.put("Content-Length", String.valueOf(body.length()));
-    response.headers.put("Content-Type", "text/html");
-    response.sendHeaders();
+		response.headers.put("Content-Length", String.valueOf(body.length()));
+		response.headers.put("Content-Type", "text/html");
+		response.sendHeaders();
+		response.writer.write(body);
+	} else {
+		response.status = "404 Not Found";
 
-    response.writer.write(body);
+		response.headers.put("Content-Length", String.valueOf(body.length()));
+		response.headers.put("Content-Type", "text/html");
+		response.sendHeaders();
+		
+		body = "<h1>File not found!</h1>";
+		response.writer.write(body);
+	}
     response.writer.close();
   }
 
