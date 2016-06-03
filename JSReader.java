@@ -6,40 +6,39 @@ import java.util.ArrayList;
 public class JSReader {
 	private StringBuilder contentBuilder;
 	private String content;
-	private ArrayList<Integer> scriptPositions;
+	private ArrayList<Integer> scriptPositions = new ArrayList<Integer>();
 	
 	public JSReader(String html) {
-		
-		content = html; // get HTML
-		ArrayList<String> paths = getFiles(); // 
+		contentBuilder = new StringBuilder(html); // get HTML
+		ArrayList<String> paths = getFiles();
 		if(paths.size() > 0) {
 			ArrayList<String> js = getJS(paths);
-			content = insertJS(js);
+			insertJS(js);
 		}
+		content = contentBuilder.toString();
 	}
 	
 	public ArrayList<String> getFiles() {
 		ArrayList<String> paths = new ArrayList<String>();
-		int position = 0, srcS = 0, srcE = 0;
 		boolean done = false;
-		StringBuilder contentBuilder = new StringBuilder(content);
-		while(!done) { // while end of html not reached
-			if((position = contentBuilder.indexOf("<script", position)) == -1) { // find next script tag from starting position
-				done = true; // if no more script tags, set done to true
+		int position = 0, srcS = 0, srcE = 0;
+		while(!done) {
+			if((position = contentBuilder.indexOf("<script", position)) == -1) {
+				done = true;
 			} else {
-				// extract src link, add to paths, save position
 				scriptPositions.add(position);
-				srcS = content.indexOf("src=\"", position);
-				srcE = content.indexOf("\"", srcE);
-				paths.add(content.substring(srcS+4, srcE));
-				// get end of script tag
-				int tag1 = content.indexOf("/>", srcE), tag2 = content.indexOf("</script>", srcE);;
-				if(tag2 == -1 || tag1 < tag2) {
+				srcS = contentBuilder.indexOf("src=\"", position);
+				srcE = contentBuilder.indexOf("\"", srcS+5);
+				System.out.println("JS file found: " + contentBuilder.substring(srcS+5, srcE));
+				paths.add(contentBuilder.substring(srcS+5, srcE));
+				int tag1 = contentBuilder.indexOf("/>", srcE);
+				int tag2 = contentBuilder.indexOf("</script>", srcE);;
+				if(tag2 == -1) {
 					// remove <script to />
-					content = content.substring(0, position) + content.substring(content.indexOf("/>", srcE)+1);
+					contentBuilder.delete(position, tag1 + 2);
 				} else {
 					// remove <script to </script>
-					content = content.substring(0, position) + content.substring(content.indexOf("</script>", srcE)+8);
+					contentBuilder.delete(position, tag2 + 9);
 				}
 			}
 		}
@@ -49,30 +48,26 @@ public class JSReader {
 	public ArrayList<String> getJS(ArrayList<String> paths) {
 		String str;
 		ArrayList<String> js = new ArrayList<String>();
-		StringBuilder contentBuilder = new StringBuilder();
 		for(int i = 0; i < paths.size(); i++) {
+			StringBuilder jsBuilder = new StringBuilder();
 			try {
-				contentBuilder.append("<script>");
+				jsBuilder.append("<script>");
 				BufferedReader in = new BufferedReader(new FileReader(paths.get(i)));
 				while((str = in.readLine()) != null) {
-					contentBuilder.append(str);
+					jsBuilder.append(str);
 				}
 				in.close();
-				contentBuilder.append("</script>");
+				jsBuilder.append("</script>");
 			} catch (IOException e) {}
-			js.add(contentBuilder.toString());
+			js.add(jsBuilder.toString());
 		}
 		return js;
 	}
 	
-	public String insertJS(ArrayList<String> js) {
-		String newcontent = content;
-		int added = 0;
-		for(int i = 0; i < js.size(); i++) {
-			newcontent = newcontent.substring(0,  scriptPositions.get(i) + added) + js.get(i) + newcontent.substring(scriptPositions.get(i) + added);
-			added += js.get(i).length();
+	public void insertJS(ArrayList<String> js) {
+		for(int i = js.size()-1; i >= 0; i--) {
+			contentBuilder.insert(scriptPositions.get(i).intValue(), js.get(i));
 		}
-		return newcontent;
 	}
 	
 	public String getContent() {

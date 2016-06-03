@@ -8,11 +8,7 @@ public class CSSReader {
 	private String content;
 	
 	public CSSReader(String html) {
-		
 		contentBuilder = new StringBuilder(html);
-		
-		System.out.println("Entering getFiles()"); // DEBUG
-
 		ArrayList<String> paths = getFiles();
 		if(paths.size() > 0) {
 			String style = getStyle(paths);
@@ -22,7 +18,6 @@ public class CSSReader {
 	}
 	
 	public ArrayList<String> getFiles() {
-		System.out.println("Entered getFiles()"); // DEBUG
 		ArrayList<String> paths = new ArrayList<String>();
 		boolean done = false;
 		int position = 0, hrefS = 0, hrefE = 0;
@@ -32,7 +27,6 @@ public class CSSReader {
 			} else {
 				hrefS = contentBuilder.indexOf("href=\"", position);
 				hrefE = contentBuilder.indexOf("\"", hrefS+6);
-				System.out.println("link found: " + contentBuilder.substring(hrefS+6, hrefE));		// DEBUG
 				paths.add(contentBuilder.substring(hrefS+6, hrefE));
 				int tag1 = contentBuilder.indexOf("/>", hrefE);
 				int tag2 = contentBuilder.indexOf("</link>", hrefE);
@@ -73,7 +67,6 @@ public class CSSReader {
 	}
 	
 	public String getContent() {
-		System.out.println(content);
 		return content;
 	}
 }
