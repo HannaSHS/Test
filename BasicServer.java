@@ -27,7 +27,7 @@ public class BasicServer implements Runnable {
         HttpRequest request = new HttpRequest(socket.getInputStream());
         HttpResponse response = new HttpResponse(socket.getOutputStream());
 
-        process_request(request, response);
+        processRequest(request, response);
         socket.close();
       } catch (IOException ex) {
         ;
@@ -36,46 +36,70 @@ public class BasicServer implements Runnable {
   }
 
   private void doGet(HttpRequest request, HttpResponse response) throws IOException {
-    if (request.uri.equals("/")) {
-      // show index page
-    } else {
-      File file = new File(BASE_PATH + request.uri);
+    String filename = request.uri.equals("/") ? "index.html" : request.uri;
+    File file = new File(BASE_PATH + filename);
 
-      if (!file.exists()) {
-        not_found(response);
-        return;
-      }
-
-      response.status = "200 OK";
-      response.headers.put("Content-Length", String.valueOf(file.length()));
-
-      if (request.uri.endsWith(".css")) {
-        response.headers.put("Content-Type", "text/css");
-        //not_found(response);
-        //return;
-      } else if (request.uri.endsWith(".html")) {
-        response.headers.put("Content-Type", "text/html");
-      } else if (request.uri.endsWith(".js")) {
-        response.headers.put("Content-Type", "text/javascript");
-        //not_found(response);
-        //return;
+    if (!file.exists()) {
+      if (request.uri.equals("/")) {
+        listDirectory(response);
       } else {
-        response.headers.put("Content-Type", "text/plain");
+        notFound(response);
       }
 
-      response.sendHeaders();
-
-      String s;
-      BufferedReader reader = new BufferedReader(new FileReader(file));
-      while ((s = reader.readLine()) != null) {
-        response.writer.write(s + "\n");
-      }
-
-      response.writer.close();
+      return;
     }
+
+    response.status = "200 OK";
+    response.headers.put("Content-Length", String.valueOf(file.length()));
+
+    if (request.uri.endsWith(".css")) {
+      response.headers.put("Content-Type", "text/css");
+    } else if (request.uri.endsWith(".html")) {
+      response.headers.put("Content-Type", "text/html");
+    } else if (request.uri.endsWith(".js")) {
+      response.headers.put("Content-Type", "text/javascript");
+    } else {
+      response.headers.put("Content-Type", "text/plain");
+    }
+
+    response.sendHeaders();
+
+    String s;
+    BufferedReader reader = new BufferedReader(new FileReader(file));
+    while ((s = reader.readLine()) != null) {
+      response.writer.write(s + "\n");
+    }
+
+    response.writer.close();
   }
 
-  private void not_found(HttpResponse response) throws IOException {
+  private void listDirectory(HttpResponse response) throws IOException {
+    StringBuffer body = new StringBuffer("<h1>Directory</h1><ul>");
+    File folder = new File(System.getProperty("user.dir") + "/www");
+    String filename, href;
+
+    for (final File fileEntry : folder.listFiles()) {
+      filename = fileEntry.getName();
+
+      body.append("<li><a href='");
+      body.append(filename.replaceAll(" ", "%20")); // handle spaces in files
+      body.append("'>");
+      body.append(filename);
+      body.append("</a></li>");
+    }
+
+    body.append("</ul>");
+
+    response.status = "200 OK";
+    response.headers.put("Content-Length", String.valueOf(body.length()));
+    response.sendHeaders();
+
+    response.writer.write(body.toString());
+    response.writer.close();
+  }
+
+
+  private void notFound(HttpResponse response) throws IOException {
     response.status = "404 Not Found";
 
     response.headers.put("Content-Length", "0");
@@ -83,7 +107,7 @@ public class BasicServer implements Runnable {
     response.writer.close();
   }
 
-  private void process_request(HttpRequest request, HttpResponse response) throws IOException {
+  private void processRequest(HttpRequest request, HttpResponse response) throws IOException {
     if (request.isGet()) {
       doGet(request, response);
     } else if (request.isHead()) {
