@@ -89,8 +89,14 @@ public class BasicServer implements Runnable {
     if (request.isGet()) {
       doGet(request, response);
     } else if (request.isHead()) {
-      // doHead(request, response);
-    }
+		// doHead(request, response);
+    } else if (request.isPost()) {
+		// doPost(request, response);
+	} else if (request.isPut()) {
+		// doPut(request, response);
+	} else if (request.isDelete()) {
+		// doDelete(request, response);
+	}
 
     System.out.println();
   }
