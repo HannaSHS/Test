@@ -43,25 +43,6 @@ public class BasicServer implements Runnable {
     } else {
       File file = new File(BASE_PATH + request.uri);
 
-<<<<<<< HEAD
-	if(fileExists) {
-		response.status = "200 OK";
-
-		response.headers.put("Content-Length", String.valueOf(body.length()));
-		response.headers.put("Content-Type", "text/html");
-		response.sendHeaders();
-		response.writer.write(body);
-	} else {
-		response.status = "404 Not Found";
-
-		response.headers.put("Content-Length", String.valueOf(body.length()));
-		response.headers.put("Content-Type", "text/html");
-		response.sendHeaders();
-		
-		body = "<h1>File not found!</h1>";
-		response.writer.write(body);
-	}
-=======
       if (!file.exists()) {
         not_found(response);
         return;
@@ -101,7 +82,6 @@ public class BasicServer implements Runnable {
 
     response.headers.put("Content-Length", "0");
     response.sendHeaders();
->>>>>>> 65f29cdf744803e3ae165b5a76eaf47d5d883b34
     response.writer.close();
   }
 
