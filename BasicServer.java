@@ -1,8 +1,12 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class BasicServer implements Runnable {
+  protected String BASE_PATH = "www";
   protected int PORT_NUMBER = 8765;
 
   private ServerSocket listener;
@@ -33,9 +37,13 @@ public class BasicServer implements Runnable {
     }
   }
 
-  private void process_request(HttpRequest request, HttpResponse response) throws IOException {
-    String body = "<h1>It Works!</h1>";
+  private void doGet(HttpRequest request, HttpResponse response) throws IOException {
+    if (request.uri.equals("/")) {
+      // show index page
+    } else {
+      File file = new File(BASE_PATH + request.uri);
 
+<<<<<<< HEAD
 	if(fileExists) {
 		response.status = "200 OK";
 
@@ -53,7 +61,58 @@ public class BasicServer implements Runnable {
 		body = "<h1>File not found!</h1>";
 		response.writer.write(body);
 	}
+=======
+      if (!file.exists()) {
+        not_found(response);
+        return;
+      }
+
+      response.status = "200 OK";
+      response.headers.put("Content-Length", String.valueOf(file.length()));
+
+      if (request.uri.endsWith(".css")) {
+        response.headers.put("Content-Type", "text/css");
+        //not_found(response);
+        //return;
+      } else if (request.uri.endsWith(".html")) {
+        response.headers.put("Content-Type", "text/html");
+      } else if (request.uri.endsWith(".js")) {
+        response.headers.put("Content-Type", "text/javascript");
+        //not_found(response);
+        //return;
+      } else {
+        response.headers.put("Content-Type", "text/plain");
+      }
+
+      response.sendHeaders();
+
+      String s;
+      BufferedReader reader = new BufferedReader(new FileReader(file));
+      while ((s = reader.readLine()) != null) {
+        response.writer.write(s + "\n");
+      }
+
+      response.writer.close();
+    }
+  }
+
+  private void not_found(HttpResponse response) throws IOException {
+    response.status = "404 Not Found";
+
+    response.headers.put("Content-Length", "0");
+    response.sendHeaders();
+>>>>>>> 65f29cdf744803e3ae165b5a76eaf47d5d883b34
     response.writer.close();
+  }
+
+  private void process_request(HttpRequest request, HttpResponse response) throws IOException {
+    if (request.isGet()) {
+      doGet(request, response);
+    } else if (request.isHead()) {
+      // doHead(request, response);
+    }
+
+    System.out.println();
   }
 
   public static void main(String[] args) throws IOException {
