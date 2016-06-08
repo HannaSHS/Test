@@ -91,6 +91,21 @@ public class BasicServer implements Runnable {
   
   private void doDelete(HttpRequest request, HttpResponse response) throws IOException{
 	// Process the DELETE Request
+    File file = new File(BASE_PATH + request.uri);
+
+    if(!file.exists()) {
+      not_found(response);
+      return;
+    } 
+    
+    response.status = "204 No Content";
+    response.headers.put("Content-Length", "0");
+
+    file.delete();
+
+    response.sendHeaders();
+    response.writer.close();
+    return;
   }
   
   private void not_found(HttpResponse response) throws IOException {
@@ -111,7 +126,7 @@ public class BasicServer implements Runnable {
 	} else if (request.isPut()) {
 		// doPut(request, response);
 	} else if (request.isDelete()) {
-		// doDelete(request, response);
+		doDelete(request, response);
 	}
 
     System.out.println();
