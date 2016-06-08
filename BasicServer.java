@@ -37,29 +37,6 @@ public class BasicServer implements Runnable {
 
   private void doGet(HttpRequest request, HttpResponse response) throws IOException {
     if (request.uri.equals("/")) {
- 	 String body = "<h1>Directory</h1><hr>";
-
-    response.status = "200 OK";
-
-    File folder = new File(BASE_PATH);
-	File[] listOfFiles = folder.listFiles();
-	body+= "<ul>";
-	for (File file : listOfFiles) {
-	    if (file.isFile()) {
-	        System.out.println(file.getName());
-	        body+= "<li><a href= '"+ file.getName() +"'>";
-	        body+= file.getName();
-	        body+= "</li></a>";
-	    }
-	}
-	body+= "</ul>";
-
-    response.headers.put("Content-Length", String.valueOf(body.length()));
-    response.headers.put("Content-Type", "text/html");
-    response.sendHeaders();
-
-    response.writer.write(body);
-    response.writer.close();
       // show index page
     } else {
       File file = new File(BASE_PATH + request.uri);
@@ -74,15 +51,10 @@ public class BasicServer implements Runnable {
 
       if (request.uri.endsWith(".css")) {
         response.headers.put("Content-Type", "text/css");
-
         //not_found(response);
         //return;
       } else if (request.uri.endsWith(".html")) {
         response.headers.put("Content-Type", "text/html");
-      }else if (request.uri.endsWith(".json")) {
-        response.headers.put("Content-Type", "application/json");
-      } else if (request.uri.endsWith(".xml")) {
-        response.headers.put("Content-Type", "application/xml");
       } else if (request.uri.endsWith(".js")) {
         response.headers.put("Content-Type", "text/javascript");
         //not_found(response);
@@ -91,14 +63,14 @@ public class BasicServer implements Runnable {
         response.headers.put("Content-Type", "text/plain");
       }
 
+      response.sendHeaders();
 
       String s;
       BufferedReader reader = new BufferedReader(new FileReader(file));
       while ((s = reader.readLine()) != null) {
         response.writer.write(s + "\n");
-        System.out.println(s);
       }
-      response.sendHeaders();
+
       response.writer.close();
     }
   }
