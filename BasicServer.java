@@ -1,8 +1,12 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class BasicServer implements Runnable {
+  protected String BASE_PATH = "www";
   protected int PORT_NUMBER = 8765;
 
   private ServerSocket listener;
@@ -31,7 +35,7 @@ public class BasicServer implements Runnable {
     }
   }
 
-  private void process_request(HttpRequest request, HttpResponse response) throws IOException {
+  private void doGet(HttpRequest request, HttpResponse response) throws IOException {
     if (request.uri.equals("/")) {
       // show index page
     } else {
@@ -55,22 +59,38 @@ public class BasicServer implements Runnable {
         response.headers.put("Content-Type", "text/javascript");
         //not_found(response);
         //return;
-      } else if (request.uri.endsWith(".json")) {
-          response.headers.put("Content-Type", "application/json");
       } else {
         response.headers.put("Content-Type", "text/plain");
       }
 
-      
+      response.sendHeaders();
 
       String s;
       BufferedReader reader = new BufferedReader(new FileReader(file));
       while ((s = reader.readLine()) != null) {
         response.writer.write(s + "\n");
       }
-      response.sendHeaders();
+
       response.writer.close();
     }
+  }
+
+  private void not_found(HttpResponse response) throws IOException {
+    response.status = "404 Not Found";
+
+    response.headers.put("Content-Length", "0");
+    response.sendHeaders();
+    response.writer.close();
+  }
+
+  private void process_request(HttpRequest request, HttpResponse response) throws IOException {
+    if (request.isGet()) {
+      doGet(request, response);
+    } else if (request.isHead()) {
+      // doHead(request, response);
+    }
+
+    System.out.println();
   }
 
   public static void main(String[] args) throws IOException {
