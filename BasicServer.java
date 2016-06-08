@@ -59,6 +59,8 @@ public class BasicServer implements Runnable {
         response.headers.put("Content-Type", "text/javascript");
         //not_found(response);
         //return;
+      } else if (request.uri.endsWith(".json")) {
+        response.headers.put("Content-Type", "application/json");
       } else {
         response.headers.put("Content-Type", "text/plain");
       }
@@ -70,7 +72,7 @@ public class BasicServer implements Runnable {
       while ((s = reader.readLine()) != null) {
         response.writer.write(s + "\n");
       }
-
+      response.sendHeaders();
       response.writer.close();
     }
   }
