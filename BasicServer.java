@@ -36,7 +36,30 @@ public class BasicServer implements Runnable {
   }
 
   private void doGet(HttpRequest request, HttpResponse response) throws IOException {
-    if (request.uri.equals("/")) {
+     if (request.uri.equals("/")) {
+ 	 String body = "<h1>Directory</h1><hr>";
+
+    response.status = "200 OK";
+
+    File folder = new File(BASE_PATH);
+	File[] listOfFiles = folder.listFiles();
+	body+= "<ul>";
+	for (File file : listOfFiles) {
+	    if (file.isFile()) {
+	        System.out.println(file.getName());
+	        body+= "<li><a href= '"+ file.getName() +"'>";
+	        body+= file.getName();
+	        body+= "</li></a>";
+	    }
+	}
+	body+= "</ul>";
+
+    response.headers.put("Content-Length", String.valueOf(body.length()));
+    response.headers.put("Content-Type", "text/html");
+    response.sendHeaders();
+
+    response.writer.write(body);
+    response.writer.close();
       // show index page
     } else {
       File file = new File(BASE_PATH + request.uri);
