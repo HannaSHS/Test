@@ -61,7 +61,9 @@ public class BasicServer implements Runnable {
         //return;
       } else if (request.uri.endsWith(".json")) {
         response.headers.put("Content-Type", "application/json");
-      } else {
+      } else if (request.uri.endsWith(".xml")) {
+        response.headers.put("Content-Type", "text/xml");
+      }  else {
         response.headers.put("Content-Type", "text/plain");
       }
 
