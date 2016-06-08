@@ -77,6 +77,22 @@ public class BasicServer implements Runnable {
     }
   }
 
+  private void doHead(HttpRequest request, HttpResponse response) throws IOException{
+	// Process the HEAD Request
+  }
+  
+  private void doPost(HttpRequest request, HttpResponse response) throws IOException{
+	// Process the POST Request
+  }
+  
+  private void doPut(HttpRequest request, HttpResponse response) throws IOException{
+	// Process the PUT Request
+  }
+  
+  private void doDelete(HttpRequest request, HttpResponse response) throws IOException{
+	// Process the DELETE Request
+  }
+  
   private void not_found(HttpResponse response) throws IOException {
     response.status = "404 Not Found";
 
