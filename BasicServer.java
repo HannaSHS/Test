@@ -32,16 +32,45 @@ public class BasicServer implements Runnable {
   }
 
   private void process_request(HttpRequest request, HttpResponse response) throws IOException {
-    String body = response.sendBody("www/ASSEMBLY TALK.txt"); //hardcoded for testing purposes only
+    if (request.uri.equals("/")) {
+      // show index page
+    } else {
+      File file = new File(BASE_PATH + request.uri);
 
-    response.status = "200 OK";
+      if (!file.exists()) {
+        not_found(response);
+        return;
+      }
 
-    response.headers.put("Content-Length", String.valueOf(body.length()));
-    response.headers.put("Content-Type", "text/html");
-    response.sendHeaders();
+      response.status = "200 OK";
+      response.headers.put("Content-Length", String.valueOf(file.length()));
 
-    response.writer.write(body);
-    response.writer.close();
+      if (request.uri.endsWith(".css")) {
+        response.headers.put("Content-Type", "text/css");
+        //not_found(response);
+        //return;
+      } else if (request.uri.endsWith(".html")) {
+        response.headers.put("Content-Type", "text/html");
+      } else if (request.uri.endsWith(".js")) {
+        response.headers.put("Content-Type", "text/javascript");
+        //not_found(response);
+        //return;
+      } else if (request.uri.endsWith(".json")) {
+          response.headers.put("Content-Type", "application/json");
+      } else {
+        response.headers.put("Content-Type", "text/plain");
+      }
+
+      
+
+      String s;
+      BufferedReader reader = new BufferedReader(new FileReader(file));
+      while ((s = reader.readLine()) != null) {
+        response.writer.write(s + "\n");
+      }
+      response.sendHeaders();
+      response.writer.close();
+    }
   }
 
   public static void main(String[] args) throws IOException {
