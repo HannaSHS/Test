@@ -55,7 +55,11 @@ public class BasicServer implements Runnable {
         response.headers.put("Content-Type", "text/css");
         //not_found(response);
         //return;
-      } else if (request.uri.endsWith(".html")) {
+      } 
+	    else if (request.uri.endsWith(".xml"){
+			response.headers.put("Content-Type", "application/xml");
+		}
+	    else if (request.uri.endsWith(".html")) {
         response.headers.put("Content-Type", "text/html");
       } else if (request.uri.endsWith(".js")) {
         response.headers.put("Content-Type", "text/javascript");
