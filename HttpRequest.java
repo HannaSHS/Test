@@ -7,6 +7,7 @@ import java.util.HashMap;
 public class HttpRequest {
   protected static String HTTP_GET = "GET";
   protected static String HTTP_HEAD = "HEAD";
+  protected static String HTTP_POST = "POST";
 
   protected BufferedReader reader;
   protected HashMap<String, String> headers = new HashMap<String, String>();
@@ -40,5 +41,13 @@ public class HttpRequest {
 
   public boolean isHead() {
     return method.equals(HTTP_HEAD);
+  }
+
+  public boolean isPost(){
+    return method.equals(HTTP_POST);
+  }
+
+  public String getHeaderValue(String header){
+    return headers.get(header);
   }
 }

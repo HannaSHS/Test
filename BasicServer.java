@@ -35,6 +35,19 @@ public class BasicServer implements Runnable {
     }
   }
 
+  private void doPost(HttpRequest request, HttpResponse response) throws IOException {
+      File file = new File(BASE_PATH + request.uri);
+
+      //if user asks to create a file
+
+      if(!yourFile.exists()) {
+          yourFile.createNewFile();
+          file_created(response);
+          return;
+      }
+
+  }
+
   private void doGet(HttpRequest request, HttpResponse response) throws IOException {
     if (request.uri.equals("/")) {
       // show index page
@@ -83,11 +96,21 @@ public class BasicServer implements Runnable {
     response.writer.close();
   }
 
+  private void file_created(HttpResponse response) throws IOException{
+    response.status = "201 File Created";
+
+    response.headers.put("Content-Length", "0");
+    response.sendHeaders();
+    response.writer.close();
+  }
+
   private void process_request(HttpRequest request, HttpResponse response) throws IOException {
     if (request.isGet()) {
       doGet(request, response);
     } else if (request.isHead()) {
       // doHead(request, response);
+    } else if (request.isPost()){
+      doPost(request, response);
     }
 
     System.out.println();
