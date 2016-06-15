@@ -19,18 +19,20 @@ public class BasicServer implements Runnable {
 
   public void run() {
     Socket socket;
-
+    HttpRequest request = null;
+    HttpResponse response = null;
+    
     System.out.println("Awaiting requests at port " + PORT_NUMBER + "...");
     while (true) {
       try {
         socket = listener.accept();
-        HttpRequest request = new HttpRequest(socket.getInputStream());
-        HttpResponse response = new HttpResponse(socket.getOutputStream());
+        request = new HttpRequest(socket.getInputStream());
+        response = new HttpResponse(socket.getOutputStream());
 
         process_request(request, response);
         socket.close();
       } catch (IOException ex) {
-        ;
+        bad_request(request, response);
       }
     }
   }
@@ -85,6 +87,14 @@ public class BasicServer implements Runnable {
 
   private void not_found(HttpResponse response) throws IOException {
     response.status = "404 Not Found";
+
+    response.headers.put("Content-Length", "0");
+    response.sendHeaders();
+    response.writer.close();
+  }
+  
+  private void bad_request(HttpResponse response) throws IOException {
+    response.status = "400 Bad Request";
 
     response.headers.put("Content-Length", "0");
     response.sendHeaders();
