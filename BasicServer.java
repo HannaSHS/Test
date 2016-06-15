@@ -36,11 +36,15 @@ public class BasicServer implements Runnable {
   }
 
   private void doGet(HttpRequest request, HttpResponse response) throws IOException {
+      
+      File file;
     if (request.uri.equals("/")) {
-      // show index page
-    } else {
-      File file = new File(BASE_PATH + request.uri);
+      file = new File( BASE_PATH + "/index.html");
 
+      System.out.println("index exists");
+    } else {
+      file = new File(BASE_PATH + request.uri);
+      System.out.println(BASE_PATH +request.uri);
       if (!file.exists()) {
         not_found(response);
         return;
@@ -67,14 +71,14 @@ public class BasicServer implements Runnable {
         response.headers.put("Content-Type", "text/plain");
       }
 
-      response.sendHeaders();
+      //response.sendHeaders();
 
       String s;
       BufferedReader reader = new BufferedReader(new FileReader(file));
       while ((s = reader.readLine()) != null) {
         response.writer.write(s + "\n");
       }
-      response.sendHeaders();
+    //  response.sendHeaders();
       response.writer.close();
     }
   }
