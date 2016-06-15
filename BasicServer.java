@@ -49,7 +49,8 @@ public class BasicServer implements Runnable {
             file_created(response);
             return;
         }else{
-          //file conflict
+          file_conflict(response);
+          return;
         }
       }else{
         //file type not supported
@@ -94,6 +95,14 @@ public class BasicServer implements Runnable {
 
       response.writer.close();
     }
+  }
+  
+  private void file_conflict(HttpResponse response) throws IOException {
+    response.status = "409 File Conflict";
+
+    response.headers.put("Content-Length", "0");
+    response.sendHeaders();
+    response.writer.close();
   }
 
   private void not_found(HttpResponse response) throws IOException {
