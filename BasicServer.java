@@ -35,17 +35,25 @@ public class BasicServer implements Runnable {
     }
   }
 
+  private boolean isSupported(String filename){
+    //check if filetype is supported
+    return true;
+  }
+
   private void doPost(HttpRequest request, HttpResponse response) throws IOException {
-      File file = new File(BASE_PATH + request.uri);
+      File file = new File(BASE_PATH + "/"+ request.uri);
 
-      //if user asks to create a file
-
-      if(!yourFile.exists()) {
-          yourFile.createNewFile();
-          file_created(response);
-          return;
+      if(isSupported(request.uri)){
+        if(!file.exists()) {
+            file.createNewFile();
+            file_created(response);
+            return;
+        }else{
+          //file conflict
+        }
+      }else{
+        //file type not supported
       }
-
   }
 
   private void doGet(HttpRequest request, HttpResponse response) throws IOException {
