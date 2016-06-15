@@ -30,21 +30,62 @@ public class BasicServer implements Runnable {
         process_request(request, response);
         socket.close();
       } catch (IOException ex) {
-        ;
+        
       }
     }
   }
 
+  private void listDirectory(String path, HttpResponse response) throws IOException{
+    File file = new File(path);
+    File[] listFiles = file.listFiles();
+    String name;
+    response.writer.write("<html>\n");
+    response.writer.write("<head");
+    response.writer.write("<title>Directory</title>\n");
+    response.writer.write("</head>");
+    response.writer.write("<body>");
+    response.writer.write("<ul>\n");
+    for(int i = 0; i < listFiles.length; i++){
+      if(listFiles[i].isFile()){
+        System.out.println("File Name: "+listFiles[i].getName());
+        name = listFiles[i].getName();
+        name.replaceAll(" ", "%20");
+        response.writer.write("<li><a href=\""+name+"\">" +name+"</a></li>\n");
+      }
+    }
+    response.writer.write("</ul>");
+    response.writer.write("</body>");
+    response.writer.write("</html>");
+    response.writer.close();
+  }
+
   private void doGet(HttpRequest request, HttpResponse response) throws IOException {
       
-      File file;
+    File file;
     if (request.uri.equals("/")) {
-      file = new File( BASE_PATH + "/index.html");
-
-      System.out.println("index exists");
+      response.headers.put("Content-Type", "text/html");
+      file = new File( BASE_PATH + "/index.html"); 
+      if(file.exists()){
+        String s;
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        while ((s = reader.readLine()) != null) {
+          response.writer.write(s + "\n");
+        }
+    //  response.sendHeaders();
+        response.writer.close(); 
+        System.out.println("index exists");
+      }
+      else{
+        listDirectory(BASE_PATH, response);
+        System.out.println("index does not exist");
+      }
+      
     } else {
+      
       file = new File(BASE_PATH + request.uri);
       System.out.println(BASE_PATH +request.uri);
+      
+      
       if (!file.exists()) {
         not_found(response);
         return;
