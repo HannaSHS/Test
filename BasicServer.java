@@ -180,6 +180,14 @@ public class BasicServer implements Runnable {
     response.writer.close();
   }
 
+  private void bad_request(HttpResponse response) throws IOException {
+    response.status = "400 Bad Request";
+
+    response.headers.put("Content-Length", "0");
+    response.sendHeaders();
+    response.writer.close();
+  }
+
   private void process_request(HttpRequest request, HttpResponse response) throws IOException {
     if (request.isGet()) {
       doGet(request, response);
