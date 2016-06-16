@@ -6,9 +6,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class BasicServer implements Runnable {
-  protected String BASE_PATH = "www";
-  protected int PORT_NUMBER = 8760
-		  ;
+  protected String BASE_PATH = "src/www";
+  protected int PORT_NUMBER = 8761;
 
   private ServerSocket listener;
 
@@ -54,8 +53,7 @@ public class BasicServer implements Runnable {
           }
           else 
           {
-        	  //file exists
-        	  //System.out.println("Does not exist");
+        	  //it exists
           }
       }
       else 
@@ -120,6 +118,15 @@ public class BasicServer implements Runnable {
     response.headers.put("Content-Length", "0");
     response.sendHeaders();
     response.writer.close();
+  }
+  
+  private void file_exist(HttpResponse response) throws IOException
+  {
+	  response.status = "409 Conflict";
+	  
+	  response.headers.put("Content-Length", "0");
+	  response.sendHeaders();
+	  response.writer.close();
   }
 
   private void process_request(HttpRequest request, HttpResponse response) throws IOException {
