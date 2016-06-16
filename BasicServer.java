@@ -53,7 +53,8 @@ public class BasicServer implements Runnable {
           }
           else 
           {
-        	  //it exists
+        	  file_exist(response);
+        	  return;
           }
       }
       else 
