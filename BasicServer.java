@@ -110,6 +110,42 @@ public class BasicServer implements Runnable {
   
   private void doPost(HttpRequest request, HttpResponse response) throws IOException{
 	// Process the POST Request
+	
+	File file = new File(BASE_PATH + request.uri);
+	
+	if (file.exists()){
+		response.status = "409 Conflict";
+		response.headers.put("Content-Length", "0");
+	} else {
+		
+		if (request.uri.endsWith(".css")){
+			response.headers.put("Content-Type", "text/css");
+		} else if (request.uri.endsWith(".html")){
+			response.headers.put("Content-Type", "text/html");
+		} else if (request.uri.endsWith(".xml")){
+			response.headers.put("Content-Type", "application/xml");
+		} else if (request.uri.endsWith(".json")){
+			response.headers.put("Content-Type", "application/json");
+		} else if (request.uri.endsWith(".js")){
+			response.headers.put("Content-Type", "text/javascript");
+		} else if (request.uri.endsWith(".txt")){
+			response.headers.put("Content-Type", "text/plain");
+		} else {
+			unsupported_mt(response);
+			return;
+		}
+		
+		file.createNewFile();
+		
+		response.status = "409 Conflict";
+		response.headers.put("Content-Length", String.valueOf(file.length()));
+		
+	}
+	
+	response.sendHeaders();
+	response.writer.close();
+	return;
+	
   }
   
   private void doPut(HttpRequest request, HttpResponse response) throws IOException{
@@ -143,6 +179,13 @@ public class BasicServer implements Runnable {
     response.writer.close();
   }
 
+  private void unsupported_mt(HttpResponse response) throws IOException {
+    response.status = "415 Unsupported Media Type";
+    response.headers.put("Content-Length", "0");
+    response.sendHeaders();
+    response.writer.close();
+  }
+  
   private void process_request(HttpRequest request, HttpResponse response) throws IOException {
     if (request.isGet()) {
       doGet(request, response);
