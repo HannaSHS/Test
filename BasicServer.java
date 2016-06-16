@@ -30,38 +30,38 @@ public class BasicServer implements Runnable {
         process_request(request, response);
         socket.close();
       } catch (IOException ex) {
-        ;
+        
       }
     }
   }
 
-  private boolean isSupported(String filename){
-    return (filename.endsWith(".txt") || filename.endsWith(".html") || filename.endsWith(".css")  || filename.endsWith(".json") || filename.endsWith(".xml") );
-  }
-
-  private void doPost(HttpRequest request, HttpResponse response) throws IOException {
-      File file = new File(BASE_PATH + "/"+ request.uri);
-
-      if(isSupported(request.uri)){
-        if(!file.exists()) {
-            file.createNewFile();
-            file_created(response);
-            return;
-        }else{
-          file_conflict(response);
-          return;
-        }
-      }else{
-        file_not_supported(response);
-      }
-  }
-
   private void doGet(HttpRequest request, HttpResponse response) throws IOException {
+      
+    File file;
     if (request.uri.equals("/")) {
-      // show index page
+      response.headers.put("Content-Type", "text/html");
+      file = new File( BASE_PATH + "/index.html"); 
+      if(file.exists()){
+        String s;
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        while ((s = reader.readLine()) != null) {
+          response.writer.write(s + "\n");
+        }
+    //  response.sendHeaders();
+        response.writer.close(); 
+        System.out.println("index exists");
+      }
+      else{
+        listDirectory(BASE_PATH, response);
+        System.out.println("index does not exist");
+      }
+      
     } else {
-      File file = new File(BASE_PATH + request.uri);
-
+      
+      file = new File(BASE_PATH + request.uri);
+      System.out.println(BASE_PATH +request.uri);
+      
+      
       if (!file.exists()) {
         not_found(response);
         return;
@@ -80,36 +80,91 @@ public class BasicServer implements Runnable {
         response.headers.put("Content-Type", "text/javascript");
         //not_found(response);
         //return;
-      } else {
+      } else if (request.uri.endsWith(".json")) {
+        response.headers.put("Content-Type", "application/json");
+      } else if (request.uri.endsWith(".xml")) {
+        response.headers.put("Content-Type", "text/xml");
+      }  else {
         response.headers.put("Content-Type", "text/plain");
       }
 
-      response.sendHeaders();
+      //response.sendHeaders();
 
       String s;
       BufferedReader reader = new BufferedReader(new FileReader(file));
       while ((s = reader.readLine()) != null) {
         response.writer.write(s + "\n");
       }
-
+    //  response.sendHeaders();
       response.writer.close();
     }
   }
 
-  private void file_not_supported(HttpResponse response) throws IOException {
-    response.status = "415 File Type Not Supported";
+  private void doHead(HttpRequest request, HttpResponse response) throws IOException{
+  // HEAD request
 
-    response.headers.put("Content-Length", "0");
+     File file = new File(BASE_PATH + request.uri);
+
+    if (!file.exists()) {
+      not_found(response);
+      return;
+    }
+
+    response.status = "200 OK";
+    response.headers.put("Content-Length", String.valueOf(file.length()));
+
+    if (request.uri.endsWith(".css")) {
+        response.headers.put("Content-Type", "text/css");
+        //not_found(response);
+        //return;
+      } else if (request.uri.endsWith(".html")) {
+        response.headers.put("Content-Type", "text/html");
+      } else if (request.uri.endsWith(".js")) {
+        response.headers.put("Content-Type", "text/javascript");
+        //not_found(response);
+        //return;
+      } else if (request.uri.endsWith(".json")) {
+        response.headers.put("Content-Type", "application/json");
+      } else if (request.uri.endsWith(".xml")) {
+        response.headers.put("Content-Type", "text/xml");
+      }  else {
+        response.headers.put("Content-Type", "text/plain");
+      }
+
     response.sendHeaders();
     response.writer.close();
+    return;
+  }
+
+
+  private void doPost(HttpRequest request, HttpResponse response) throws IOException {
+      File file = new File(BASE_PATH + "/"+ request.uri);
+
+      if(isSupported(request.uri)){
+        if(!file.exists()) {
+            file.createNewFile();
+            file_created(response);
+            return;
+        }else{
+          file_conflict(response);
+          return;
+        }
+      }else{
+        file_not_supported(response);
+      }
+  }
+
+  private void doPut(HttpRequest request, HttpResponse response) throws IOException{
+  // PUT request
   }
   
-  private void file_conflict(HttpResponse response) throws IOException {
-    response.status = "409 File Conflict";
+  private void doDelete(HttpRequest request, HttpResponse response) throws IOException{
+  // DELETE request
+  }
 
-    response.headers.put("Content-Length", "0");
-    response.sendHeaders();
-    response.writer.close();
+  private boolean isSupported(String filename){
+    return (filename.endsWith(".txt") || filename.endsWith(".html") || filename.endsWith(".css")  || filename.endsWith(".json") || filename.endsWith(".xml") 
+      || filename.endsWith(".js"));
   }
 
   private void not_found(HttpResponse response) throws IOException {
@@ -128,16 +183,58 @@ public class BasicServer implements Runnable {
     response.writer.close();
   }
 
+  private void file_not_supported(HttpResponse response) throws IOException {
+    response.status = "415 File Type Not Supported";
+
+    response.headers.put("Content-Length", "0");
+    response.sendHeaders();
+    response.writer.close();
+  }
+  
+  private void file_conflict(HttpResponse response) throws IOException {
+    response.status = "409 File Conflict";
+
+    response.headers.put("Content-Length", "0");
+    response.sendHeaders();
+    response.writer.close();
+  }
+
+
   private void process_request(HttpRequest request, HttpResponse response) throws IOException {
     if (request.isGet()) {
       doGet(request, response);
-    } else if (request.isHead()) {
+    //} else if (request.isHead()) {
       // doHead(request, response);
     } else if (request.isPost()){
       doPost(request, response);
+    //} else if (request.isDelete()) {
+      // doHead(request, response);
     }
-
     System.out.println();
+  }
+
+  private void listDirectory(String path, HttpResponse response) throws IOException{
+    File file = new File(path);
+    File[] listFiles = file.listFiles();
+    String name;
+    response.writer.write("<html>\n");
+    response.writer.write("<head");
+    response.writer.write("<title>Directory</title>\n");
+    response.writer.write("</head>");
+    response.writer.write("<body>");
+    response.writer.write("<ul>\n");
+    for(int i = 0; i < listFiles.length; i++){
+      if(listFiles[i].isFile()){
+        System.out.println("File Name: "+listFiles[i].getName());
+        name = listFiles[i].getName();
+        name.replaceAll(" ", "%20");
+        response.writer.write("<li><a href=\""+name+"\">" +name+"</a></li>\n");
+      }
+    }
+    response.writer.write("</ul>");
+    response.writer.write("</body>");
+    response.writer.write("</html>");
+    response.writer.close();
   }
 
   public static void main(String[] args) throws IOException {
