@@ -36,8 +36,7 @@ public class BasicServer implements Runnable {
   }
 
   private boolean isSupported(String filename){
-    //check if filetype is supported
-    return true;
+    return (filename.endsWith(".txt") || filename.endsWith(".html") || filename.endsWith(".css")  || filename.endsWith(".json") || filename.endsWith(".xml") );
   }
 
   private void doPost(HttpRequest request, HttpResponse response) throws IOException {
@@ -53,7 +52,7 @@ public class BasicServer implements Runnable {
           return;
         }
       }else{
-        //file type not supported
+        file_not_supported(response);
       }
   }
 
@@ -95,6 +94,14 @@ public class BasicServer implements Runnable {
 
       response.writer.close();
     }
+  }
+
+  private void file_not_supported(HttpResponse response) throws IOException {
+    response.status = "415 File Type Not Supported";
+
+    response.headers.put("Content-Length", "0");
+    response.sendHeaders();
+    response.writer.close();
   }
   
   private void file_conflict(HttpResponse response) throws IOException {
