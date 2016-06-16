@@ -83,6 +83,16 @@ public class BasicServer implements Runnable {
   
   private void doPost(HttpRequest request, HttpResponse response) throws IOException{
 	// Process the POST Request
+	File file = new File(BASE_PATH + request.uri);
+
+    if(Files.list(Paths.get(BASE_PATH)).count() >= 20) {  
+      response.status = "507 Insufficient Storage";
+      response.headers.put("Content-Length", "0");
+    }
+	
+	response.sendHeaders();
+    response.writer.close();
+    return;
   }
   
   private void doPut(HttpRequest request, HttpResponse response) throws IOException{
