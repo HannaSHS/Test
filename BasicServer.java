@@ -115,6 +115,13 @@ public class BasicServer implements Runnable {
     response.sendHeaders();
     response.writer.close();
   }
+  
+  private void unsupported_mt(HttpResponse response) throws IOException {
+    response.status = "415 Unsupported Media Type";
+    response.headers.put("Content-Length", "0");
+    response.sendHeaders();
+    response.writer.close();
+  }
 
   private void process_request(HttpRequest request, HttpResponse response) throws IOException {
     if (request.isGet()) {
