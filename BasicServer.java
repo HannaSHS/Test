@@ -7,7 +7,8 @@ import java.net.Socket;
 
 public class BasicServer implements Runnable {
   protected String BASE_PATH = "www";
-  protected int PORT_NUMBER = 8765;
+  protected int PORT_NUMBER = 8760
+		  ;
 
   private ServerSocket listener;
 
@@ -34,6 +35,35 @@ public class BasicServer implements Runnable {
       }
     }
   }
+  
+  private boolean isFileSupported(String file){
+	    //check if filetype is supported
+	    return true;
+	  }
+  
+  private void doPost(HttpRequest request, HttpResponse response) throws IOException{
+
+      if(isFileSupported(request.uri))
+      {
+    	  File file = new File(BASE_PATH + request.uri);
+    	  if(!file.exists())
+          {
+    		  file.createNewFile();
+              create_file(response);
+              return;
+          }
+          else 
+          {
+        	  //file exists
+        	  //System.out.println("Does not exist");
+          }
+      }
+      else 
+      {
+    	  //file is not supported
+      }
+
+}
 
   private void doGet(HttpRequest request, HttpResponse response) throws IOException {
     if (request.uri.equals("/")) {
@@ -82,13 +112,36 @@ public class BasicServer implements Runnable {
     response.sendHeaders();
     response.writer.close();
   }
+  
+  private void create_file(HttpResponse response) throws IOException 
+  {
+    response.status = "201 Created";
+
+    response.headers.put("Content-Length", "0");
+    response.sendHeaders();
+    response.writer.close();
+  }
 
   private void process_request(HttpRequest request, HttpResponse response) throws IOException {
     if (request.isGet()) {
-      doGet(request, response);
-    } else if (request.isHead()) {
+    	doGet(request, response);
+    } 
+    else if (request.isHead()) {
       // doHead(request, response);
     }
+    else if(request.isPost())
+    {
+    	doPost(request, response);
+    }
+    else if(request.isPut())
+    {
+    	//doPut(request, response);
+    }
+    else if(request.isDelete())
+    {
+    	//doDelete(request, response);
+    }
+    
 
     System.out.println();
   }
