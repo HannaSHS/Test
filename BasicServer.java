@@ -87,6 +87,22 @@ public class BasicServer implements Runnable {
   
   private void doPut(HttpRequest request, HttpResponse response) throws IOException{
 	// Process the PUT Request
+    File file = new File(BASE_PATH + request.uri);
+    System.out.println("doPut");
+
+    if(!file.exists()) {
+      not_found(response);
+      return;
+    } 
+    
+    if (!request.uri.endsWith(".css") || !request.uri.endsWith(".html") || !request.uri.endsWith(".js") || !request.uri.endsWith(".txt")) {
+        unsupported_mt(response);
+        return;
+    }
+
+    response.sendHeaders();
+    response.writer.close();
+    return;
   }
   
   private void doDelete(HttpRequest request, HttpResponse response) throws IOException{
@@ -131,7 +147,7 @@ public class BasicServer implements Runnable {
     } else if (request.isPost()) {
 		// doPost(request, response);
 	} else if (request.isPut()) {
-		// doPut(request, response);
+		doPut(request, response);
 	} else if (request.isDelete()) {
 		doDelete(request, response);
 	}
